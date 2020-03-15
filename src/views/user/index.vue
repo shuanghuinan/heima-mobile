@@ -1,5 +1,8 @@
 <template>
-  <div>用户页面</div>
+  <div class="container">
+    个人中心
+
+  </div>
 </template>
 
 <script>
