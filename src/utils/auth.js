@@ -4,13 +4,13 @@
  * *****/
 const USER_TOKEN = 'heima-mobile'
 
+// 本地不仅存着token(保质期两小时),还存着refresh_token(保质期十四天)
 export function setUser (user) {
   window.localStorage.setItem(USER_TOKEN, JSON.stringify(user))
 }
 
-// 本地不仅存着token(保质期两小时),还存着refresh_token(保质期十四天)
 export function getUser () {
-  return JSON.parse(window.localStorage.getItem(USER_TOKEN) || {})
+  return JSON.parse(window.localStorage.getItem(USER_TOKEN) || '{}')
 }
 
 export function delUser () {
