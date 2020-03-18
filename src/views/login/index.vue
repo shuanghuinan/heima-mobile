@@ -23,8 +23,8 @@ export default {
     return {
       // 输入框数据
       FormData: {
-        mobile: '', // 手机号
-        code: ''// 验证码
+        mobile: '13911111111', // 手机号
+        code: '246810'// 验证码
       },
       // 输入框的错误信息
       errorInfo: {
@@ -87,7 +87,7 @@ export default {
         } catch (error) {
           // 提示消息 提示用户 告诉用户登录失败
           // this.$notify({ message: '用户名或者验证码错误', duration: 800 })
-          this.$notify({ message: '用户名或验证码错误,请检查后重新输入', duration: 700 })
+          this.$shnnotify({ message: '用户名或验证码错误,请检查后重新输入' })
           // 这里我们要抖一个小机灵
         }
       }
