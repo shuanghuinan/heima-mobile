@@ -5,11 +5,16 @@
       <!-- 标签页内的每一项 -->
          <van-tab :title="item.name" v-for="item in channels" :key="item.id">
         <!-- 每项的内容,单独封装成一个组件 -->
-        <articleList :article_id='item.id'>
+        <articleList :channel_id='item.id'>
 
         </articleList>
       </van-tab>
     </van-tabs>
+        <!-- 在tabs下放置图标  编辑频道的图标 -->
+      <span class="bar_btn">
+        <!-- 放入图标 vant图标 -->
+         <van-icon name='wap-nav'></van-icon>
+      </span>
   </div>
 </template>
 

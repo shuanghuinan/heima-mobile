@@ -6,26 +6,26 @@
       <van-list v-model="loading" :finished="finished" @load="load" finished-text="见底了">
         <van-cell-group>
           <!-- 每条信息 -->
-          <van-cell v-for="(item,index) in articles" :key="index">
+          <van-cell v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <!-- 标题 -->
-              <h3 class="van-ellipsis">2020年,真的是世纪大变革,世界进程发生巨变的一年</h3>
+              <h3 class="van-ellipsis">{{item.title}}</h3>
               <!-- 三图图片 -->
-              <div class="img_box">
+              <div class="img_box" v-if="item.cover.type===3">
                 <!-- 图片组件用的是 vant的组件库中的图片组件 需要使用该组件 进行图片的懒加载 -->
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-                <van-image class="w33" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[0]" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[1]" />
+                <van-image class="w33" fit="cover" :src="item.cover.images[2]" />
               </div>
               <!-- 单图 暂时隐藏掉单图-->
-              <!-- <div class="img_box">
-                <van-image class="w100" fit="cover" src="https://img.yzcdn.cn/vant/cat.jpeg" />
-              </div>-->
+              <div class="img_box" v-if="item.cover.type===1">
+                <van-image class="w100" fit="cover" :src="item.cover.images[0]" />
+              </div>
               <!-- 作者信息 -->
               <div class="info_box">
-                <span>你像一阵风</span>
-                <span>8评论</span>
-                <span>10分钟前</span>
+                <span>{{item.aut_id}}</span>
+                <span>{{item.ch_id}}评论</span>
+                <span>{{item.pubdate}}</span>
                 <span class="close">
                   <van-icon name="cross"></van-icon>
                 </span>
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import { getArticles } from '@/api/articles'
 export default {
   data () {
     return {
@@ -51,7 +52,7 @@ export default {
     }
   },
   props: {
-    article_id: {
+    channel_id: {
       required: true,
       type: Number,
       default: null
@@ -59,17 +60,28 @@ export default {
   },
   methods: {
     // 此方法用来做上拉加载,在滚动条与底部举例小于offset时触发
-    load () {
-      // 如果文章长度大于50,则代表加载完毕
-      if (this.articles.length > 50) {
-        this.finished = true
+    // load () {
+    //   // 如果文章长度大于50,则代表加载完毕
+    //   if (this.articles.length > 50) {
+    //     this.finished = true
+    //   } else {
+    //     // 否则认为没加载完毕,要继续往文章列表内添加数据
+    //     const arr = Array.from(Array(15), (value, index) => {
+    //       return this.articles.length + index + 1
+    //     })
+    //     this.articles.push(...arr) // 将生成的arr添加至文章列表数据
+    //     this.loading = false // 然后关闭上拉加载状态
+    //   }
+    // },
+    async load () {
+      const res = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
+      console.log(res)
+      this.articles.push(...res.results) // 将获取到的结果一项一项加入articles中
+      this.loading = false
+      if (res.pre_timestamp) {
+        this.timestamp = res.pre_timestamp
       } else {
-        // 否则认为没加载完毕,要继续往文章列表内添加数据
-        const arr = Array.from(Array(15), (value, index) => {
-          return this.articles.length + index + 1
-        })
-        this.articles.push(...arr) // 将生成的arr添加至文章列表数据
-        this.loading = false // 然后关闭上拉加载状态
+        this.timestamp = Date.now()
       }
     },
 
