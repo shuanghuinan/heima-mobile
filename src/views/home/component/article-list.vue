@@ -74,10 +74,11 @@ export default {
     //   }
     // },
     async load () {
-      const res = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })
+      const res = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })// 如果有历史时间戳 用历史时间戳 否则用当前的时间戳
       console.log(res)
       this.articles.push(...res.results) // 将获取到的结果一项一项加入articles中
       this.loading = false
+      // 如果响应数据中有历史时间戳，就要把历史时间戳存入到data中的数据中     否则存入当前时间戳
       if (res.pre_timestamp) {
         this.timestamp = res.pre_timestamp
       } else {
@@ -86,13 +87,27 @@ export default {
     },
 
     // 此方法用来做下拉刷新
-    onRefresh () {
-      const arr = Array.from(Array(2), (value, index) => {
-        return '我是新来的'
-      })
-      this.articles.unshift(...arr) // 将生成的arr从前加进文章列表数据
+    // onRefresh () {
+    //   const arr = Array.from(Array(2), (value, index) => {
+    //     return '我是新来的'
+    //   })
+    //   this.articles.unshift(...arr) // 将生成的arr从前加进文章列表数据
+    //   this.refresh = false // 然后手动关闭正在加载的状态
+    //   this.successTest = `更新了${arr.length}条数据` // 并且设置显示文本
+    // },
+    async onRefresh () {
+      const res = await getArticles({ channel_id: this.channel_id, timestamp: Date.now() })// 请求下拉刷新的时候传的当前时间戳
+      this.articles.unshift(...res.results)
       this.refresh = false // 然后手动关闭正在加载的状态
-      this.successTest = `更新了${arr.length}条数据` // 并且设置显示文本
+      // 如果响应数据中有历史时间戳，就要把历史时间戳存入到data中的数据中,并且要重新唤醒finished数据     否则存入当前时间戳
+      if (res.pre_timestamp) {
+        this.timestamp = res.pre_timestamp
+        this.finished = false// 让列表可以继续上拉加载
+        this.successTest = `更新了${res.results.length}条数据`
+      } else {
+        this.successTest = '当前已经是最新的了'
+      }
+      // this.successTest = `更新了${.length}条数据` // 并且设置显示文本
     }
   }
 }
