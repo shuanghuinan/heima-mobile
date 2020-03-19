@@ -1,3 +1,7 @@
+/**
+ * 负责处理用户数据
+ */
+
 import request from '@/utils/request' // 引入请求文件
 
 // 导出一个用于用户登录的方法
