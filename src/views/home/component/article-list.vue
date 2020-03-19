@@ -96,6 +96,7 @@ export default {
     //   this.successTest = `更新了${arr.length}条数据` // 并且设置显示文本
     // },
     async onRefresh () {
+      await this.$sleep() // 调用自己封装的休眠函数
       const res = await getArticles({ channel_id: this.channel_id, timestamp: Date.now() })// 请求下拉刷新的时候传的当前时间戳
       this.articles.unshift(...res.results)
       this.refresh = false // 然后手动关闭正在加载的状态

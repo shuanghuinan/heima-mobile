@@ -8,5 +8,15 @@ export default {
     Vue.prototype.$shnnotify = function (params) {
       Vue.prototype.$notify({ duration: 700, ...params })
     }
+    // 将sleep函数加给Vue
+    Vue.prototype.$sleep = sleep
   }
+}
+
+// 休眠函数
+// time  = 500 如果你传入了time 用你的 如果说你没传 time 用 500
+function sleep (time = 500) {
+  return new Promise(function (resolve, reject) {
+    window.setTimeout(() => resolve(), time)
+  })
 }
