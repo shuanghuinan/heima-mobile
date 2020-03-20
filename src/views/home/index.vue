@@ -17,9 +17,10 @@
          <van-icon name='wap-nav'></van-icon>
       </span>
       <!-- 弹出层组件 -->
-      <van-popup v-model="showMoreAction">
+      <van-popup v-model="showMoreAction" style="width: 80%">
         <!-- 在弹出层组件中放置'更多操作组件' -->
-          <moreAction @dislike="dislikeArticle"></moreAction>
+          <!-- <moreAction @dislike="dislikeArticle" @report='reportArticle'></moreAction> -->
+          <moreAction @dislike="dislikeArticle('display')" @report="dislikeArticle('report',$event)"></moreAction>
       </van-popup>
   </div>
 </template>
@@ -28,7 +29,7 @@
 import articleList from '@/views/home/component/article-list' // 引入文章列表组件
 import moreAction from '@/views/home/component/more-action' // 引入更多操作组件
 import { getChannels } from '@/api/channels' // 引入获取频道请求
-import { dislikeArticle } from '@/api/articles' // 引入对文章不喜欢的请求
+import { dislikeArticle, reportArticle } from '@/api/articles' // 引入对文章不喜欢的请求 he 举报文章的请求
 import eventBus from '@/utils/eventbus' // 引入公共实例
 
 export default {
@@ -55,10 +56,11 @@ export default {
       this.showMoreAction = true
       this.articleId = id
     },
-    // 弹层中的  对文章不感兴趣
-    async dislikeArticle () {
+    // 对文章的不喜欢/举报
+    async dislikeArticle (operateType, type) {
       try {
-        await dislikeArticle({ target: this.articleId })
+        operateType === 'display' ? await dislikeArticle({ target: this.articleId }) : await reportArticle({ target: this.articleId, type })// 发请求
+
         // this.articleId = res.target// 请求成功的话,将响应数据中的不喜欢文章id值赋值到data中
         this.$shnnotify({ type: 'success', message: '操作成功' })// 然后显示成功提示消息
         // 把当前所点击的文章的频道id和文章id传给其他组件
@@ -69,6 +71,31 @@ export default {
         this.$shnnotify({ message: '操作失败' })
       }
     }
+    // async dislikeArticle () {
+    //   try {
+    //     await dislikeArticle({ target: this.articleId })
+    //     // this.articleId = res.target// 请求成功的话,将响应数据中的不喜欢文章id值赋值到data中
+    //     this.$shnnotify({ type: 'success', message: '操作成功' })// 然后显示成功提示消息
+    //     // 把当前所点击的文章的频道id和文章id传给其他组件
+    //     eventBus.$emit('delArticle', this.channels[this.channelIndex].id, this.articleId)
+    //     this.showMoreAction = false// 将弹层隐藏
+    //   } catch (error) {
+    //     // 请求不成功的话,显示错误提示消息
+    //     this.$shnnotify({ message: '操作失败' })
+    //   }
+    // },
+
+    // // 举报文章
+    // async reportArticle (type) {
+    //   try {
+    //     await reportArticle({ target: this.articleId, type })// 发请求
+    //     this.$shnnotify({ type: 'success', message: '举报成功' })
+    //     eventBus.$emit('delArticle', this.channels[this.channelIndex].id, this.articleId)
+    //     this.showMoreAction = false// 将弹层隐藏
+    //   } catch (error) {
+    //     this.$shnnotify({ message: '操作失败' })
+    //   }
+    // }
   },
   created () {
     this.getChannels()
