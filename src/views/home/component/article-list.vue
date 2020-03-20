@@ -25,7 +25,7 @@
               <div class="info_box">
                 <span>{{item.aut_id}}</span>
                 <span>{{item.ch_id}}评论</span>
-                <span>{{item.pubdate}}</span>
+                <span>{{item.pubdate | relTime}}</span>
                 <span class="close">
                   <van-icon name="cross"></van-icon>
                 </span>
@@ -46,7 +46,7 @@ export default {
       loading: false, // 表示当前是否在上拉加载
       finished: false, // 表示当前列表的所有数据是否已经加载完毕
       refresh: true, // 下载刷新状态 表示是否正在下拉刷新
-      successTest: '', // 表示上拉刷新完成后的显示文本
+      successTest: '', // 表示下拉刷新完成后的显示文本
       articles: [], // 用于存放文章文章列表
       timestamp: null // 定义一个时间戳属性 用来存储 历史时间戳
     }
@@ -75,14 +75,15 @@ export default {
     // },
     async load () {
       const res = await getArticles({ channel_id: this.channel_id, timestamp: this.timestamp || Date.now() })// 如果有历史时间戳 用历史时间戳 否则用当前的时间戳
-      console.log(res)
+      // console.log(res)
       this.articles.push(...res.results) // 将获取到的结果一项一项加入articles中
       this.loading = false
-      // 如果响应数据中有历史时间戳，就要把历史时间戳存入到data中的数据中     否则存入当前时间戳
+      // 如果响应数据中有历史时间戳，就要把历史时间戳存入到data中的数据中
+      // 否则存入当前时间戳
       if (res.pre_timestamp) {
         this.timestamp = res.pre_timestamp
       } else {
-        this.timestamp = Date.now()
+        this.finished = true
       }
     },
 
