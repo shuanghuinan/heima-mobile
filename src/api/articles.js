@@ -10,3 +10,12 @@ export function getArticles (params) {
     params: { with_top: 1, ...params } // 合并 数据
   })
 }
+
+// 不感兴趣文章
+export function dislikeArticle (data) {
+  return request({
+    url: '/article/dislikes',
+    method: 'post', // 请求类型
+    data
+  })
+}

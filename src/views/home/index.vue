@@ -1,11 +1,12 @@
 <template>
   <div class="container">
     <!-- tabs标签页组件 -->
-    <van-tabs>
+    <van-tabs v-model="channelIndex">
       <!-- 标签页内的每一项 -->
+         <!-- 有多少个tab,就有多少个articlelist组件 -->
          <van-tab :title="item.name" v-for="item in channels" :key="item.id">
         <!-- 每项的内容,单独封装成一个组件 -->
-        <articleList :channel_id='item.id'>
+        <articleList :channel_id='item.id' @showAction='openAction'>
 
         </articleList>
       </van-tab>
@@ -15,26 +16,58 @@
         <!-- 放入图标 vant图标 -->
          <van-icon name='wap-nav'></van-icon>
       </span>
+      <!-- 弹出层组件 -->
+      <van-popup v-model="showMoreAction">
+        <!-- 在弹出层组件中放置'更多操作组件' -->
+          <moreAction @dislike="dislikeArticle"></moreAction>
+      </van-popup>
   </div>
 </template>
 
 <script>
 import articleList from '@/views/home/component/article-list' // 引入文章列表组件
+import moreAction from '@/views/home/component/more-action' // 引入更多操作组件
 import { getChannels } from '@/api/channels' // 引入获取频道请求
+import { dislikeArticle } from '@/api/articles' // 引入对文章不喜欢的请求
+import eventBus from '@/utils/eventbus' // 引入公共实例
 
 export default {
   components: {
-    articleList
+    articleList,
+    moreAction
   },
   data () {
     return {
-      channels: []
+      channels: [], // 放置频道数据
+      showMoreAction: false, // 是否显示弹层组件,默认不显示
+      articleId: null, // 文章id
+      channelIndex: 0 // 当前所在频道的索引值
     }
   },
   methods: {
     async getChannels () {
       const res = await getChannels()
       this.channels = res.channels // 获取频道成功后,将获取到的数据加进data中的数据中
+    },
+    // 此方法 会在article-list组件触发
+    openAction (id) {
+      // alert(id)
+      this.showMoreAction = true
+      this.articleId = id
+    },
+    // 弹层中的  对文章不感兴趣
+    async dislikeArticle () {
+      try {
+        await dislikeArticle({ target: this.articleId })
+        // this.articleId = res.target// 请求成功的话,将响应数据中的不喜欢文章id值赋值到data中
+        this.$shnnotify({ type: 'success', message: '操作成功' })// 然后显示成功提示消息
+        // 把当前所点击的文章的频道id和文章id传给其他组件
+        eventBus.$emit('delArticle', this.channels[this.channelIndex].id, this.articleId)
+        this.showMoreAction = false// 将弹层隐藏
+      } catch (error) {
+        // 请求不成功的话,显示错误提示消息
+        this.$shnnotify({ message: '操作失败' })
+      }
     }
   },
   created () {

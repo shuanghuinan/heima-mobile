@@ -26,7 +26,8 @@
                 <span>{{item.aut_id}}</span>
                 <span>{{item.ch_id}}评论</span>
                 <span>{{item.pubdate | relTime}}</span>
-                <span class="close">
+                <!-- vuex中有token,就显示小叉号,没有token就不显示 -->
+                <span @click="$emit('showAction',item.art_id.toString())" class="close" v-if="$store.state.user.token">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>
@@ -40,6 +41,8 @@
 
 <script>
 import { getArticles } from '@/api/articles'
+import eventBus from '@/utils/eventbus' // 引入公共实例
+
 export default {
   data () {
     return {
@@ -111,6 +114,27 @@ export default {
       }
       // this.successTest = `更新了${.length}条数据` // 并且设置显示文本
     }
+  },
+
+  created () {
+    // debugger
+
+    eventBus.$on('delArticle', (channelId, articleId) => {
+      // alert(123)
+      // 如果 传递过来的频道 等于 自身的频道  的话,再进行文章列表的删除
+      if (channelId === this.channel_id) {
+        // alert(this.channel_id)
+        const index = this.articles.findIndex(item => item.art_id.toString() === articleId)
+        // 如果点击的文章列表的索引>-1,就进行删除操作
+        if (index > -1) {
+          this.articles.splice(index, 1) // 删除对应下标的数据
+        }
+        // 当文章列表里面没有数据的时候(即我们把页面显示所有文章都点了不感兴趣后,就会导致列表里面没有数据,此时要在执行一下加载文章事件)
+        if (this.articles.length === 0) {
+          this.load()
+        }
+      }
+    })
   }
 }
 </script>
