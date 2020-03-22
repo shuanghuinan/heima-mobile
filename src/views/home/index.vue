@@ -24,7 +24,7 @@
       </van-popup>
       <!-- 频道编辑组件 -->
       <van-action-sheet title="频道编辑" v-model="showChannelEdit" :round="false">
-        <channelEdit :Mychannels='channels' :curChannel='channelIndex' @selectChannel='selectChannel'></channelEdit>
+        <channelEdit :Mychannels='channels' :curChannel='channelIndex' @selectChannel='selectChannel' @delMyChannel='delMyChannel'></channelEdit>
       </van-action-sheet>
   </div>
 </template>
@@ -33,7 +33,7 @@
 import articleList from '@/views/home/component/article-list' // 引入文章列表组件
 import moreAction from '@/views/home/component/more-action' // 引入更多操作组件
 import channelEdit from '@/views/home/component/channel-edit'// 引入频道编辑组件
-import { getChannels } from '@/api/channels' // 引入获取频道请求
+import { getChannels, delMyChannel } from '@/api/channels' // 引入获取频道请求
 import { dislikeArticle, reportArticle } from '@/api/articles' // 引入对文章不喜欢的请求 he 举报文章的请求
 import eventBus from '@/utils/eventbus' // 引入公共实例
 
@@ -107,6 +107,23 @@ export default {
     selectChannel (index) {
       this.channelIndex = index // 将当前频道索引改为子组件传过来的索引值
       this.showChannelEdit = false// 关闭弹层
+    },
+
+    // 删除频道
+    async delMyChannel (id) {
+      // alert(id)
+      try {
+        // debugger
+        await delMyChannel(id)// 调用api方法  此时只是删除了 缓存中的数据
+        // 如果此时成功的resolve了 我们 应该去移除 当前data中的数据
+        const index = this.channels.findIndex((item) => { return item.id === id })
+        if (index <= this.channelIndex) {
+          this.channelIndex = this.channelIndex - 1
+        }
+        this.channels.splice(index, 1) // 删除对应的索引频道
+      } catch (error) {
+        this.$shnnotify({ message: '删除频道失败' })
+      }
     }
   },
   created () {

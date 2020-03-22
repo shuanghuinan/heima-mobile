@@ -10,7 +10,7 @@
       <van-grid class="van-hairline--left">
         <van-grid-item v-for="(item,index) in Mychannels" :key="index">
           <span @click="$emit('selectChannel',index)" class="f12"  :class="{red:index===curChannel}">{{item.name}}</span>
-          <van-icon v-if="index!=0&&editing===true" class="btn" name="cross"></van-icon>
+          <van-icon @click="$emit('delMyChannel',item.id)" v-if="index!=0&&editing===true" class="btn" name="cross"></van-icon>
         </van-grid-item>
       </van-grid>
     </div>
@@ -51,6 +51,7 @@ export default {
       const res = await getAllChannels()
       this.allChannels = res.channels
     }
+
   },
   computed: {
     // 可选频道数据

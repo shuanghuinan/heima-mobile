@@ -29,13 +29,13 @@ export function delMyChannel (id) {
   return new Promise(function (resolve, reject) {
     const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T // key根据当前的登录状态来判断
     const channels = JSON.parse(localStorage.getItem(key))
-    const index = channels.filter((item) => { return item.id === id })
+    const index = channels.findIndex((item) => { return item.id === id })
     if (index > -1) {
       channels.splice(index, 1)
       localStorage.setItem(key, JSON.stringify(channels))
       resolve()
     } else {
-      reject(channels)
+      reject(new Error('没有找到对应的频道..'))
     }
   })
 }
