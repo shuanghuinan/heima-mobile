@@ -28,15 +28,26 @@ export function getChannels () {
 export function delMyChannel (id) {
   return new Promise(function (resolve, reject) {
     const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T // key根据当前的登录状态来判断
-    const channels = JSON.parse(localStorage.getItem(key))
+    const channels = JSON.parse(localStorage.getItem(key))// 直接将本地缓存中的字符串转化成对象
     const index = channels.findIndex((item) => { return item.id === id })
     if (index > -1) {
-      channels.splice(index, 1)
-      localStorage.setItem(key, JSON.stringify(channels))
-      resolve()
+      channels.splice(index, 1)// 删除对应的下标元素
+      localStorage.setItem(key, JSON.stringify(channels))// 重新写入缓存
+      resolve()// 如果执行成功了 我们应该 resolve()
     } else {
-      reject(new Error('没有找到对应的频道..'))
+      reject(new Error('没有找到对应的频道..')) // 如果没有找到对应的下标
     }
+  })
+}
+
+// 添加我的频道
+export function addMyChannel (channel) {
+  return new Promise(function (resolve, reject) {
+    const key = store.state.user.token ? CACHE_CHANNEL_V : CACHE_CHANNEL_T // key根据当前的登录状态来判断
+    const channels = JSON.parse(localStorage.getItem(key))// 直接将本地缓存中的字符串转化成对象
+    channels.push(channel) // 将添加的频道数据添加到队尾
+    localStorage.setItem(key, JSON.stringify(channels))// 重新写入缓存
+    resolve()// 执行这一步 相当于 告诉我们使用promise的方法 执行成功了
   })
 }
 // 获取我的频道数据

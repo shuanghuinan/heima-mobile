@@ -24,7 +24,7 @@
       </van-popup>
       <!-- 频道编辑组件 -->
       <van-action-sheet title="频道编辑" v-model="showChannelEdit" :round="false">
-        <channelEdit :Mychannels='channels' :curChannel='channelIndex' @selectChannel='selectChannel' @delMyChannel='delMyChannel'></channelEdit>
+        <channelEdit :Mychannels='channels' :curChannel='channelIndex' @selectChannel='selectChannel' @delMyChannel='delMyChannel' @addMyChannel='addMyChannel'></channelEdit>
       </van-action-sheet>
   </div>
 </template>
@@ -33,7 +33,7 @@
 import articleList from '@/views/home/component/article-list' // 引入文章列表组件
 import moreAction from '@/views/home/component/more-action' // 引入更多操作组件
 import channelEdit from '@/views/home/component/channel-edit'// 引入频道编辑组件
-import { getChannels, delMyChannel } from '@/api/channels' // 引入获取频道请求
+import { getChannels, delMyChannel, addMyChannel } from '@/api/channels' // 引入获取频道请求
 import { dislikeArticle, reportArticle } from '@/api/articles' // 引入对文章不喜欢的请求 he 举报文章的请求
 import eventBus from '@/utils/eventbus' // 引入公共实例
 
@@ -109,7 +109,7 @@ export default {
       this.showChannelEdit = false// 关闭弹层
     },
 
-    // 删除频道
+    // 删除我的频道
     async delMyChannel (id) {
       // alert(id)
       try {
@@ -123,6 +123,16 @@ export default {
         this.channels.splice(index, 1) // 删除对应的索引频道
       } catch (error) {
         this.$shnnotify({ message: '删除频道失败' })
+      }
+    },
+
+    // 添加我的频道
+    async addMyChannel (channel) {
+      try {
+        await addMyChannel(channel)
+        this.channels.push(channel)
+      } catch (error) {
+        this.$$shnnotify({ message: '添加频道失败' })
       }
     }
   },
