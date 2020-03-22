@@ -14,7 +14,7 @@
         <!-- 在tabs下放置图标  编辑频道的图标 -->
       <span class="bar_btn">
         <!-- 放入图标 vant图标 -->
-         <van-icon name='wap-nav'></van-icon>
+         <van-icon name='wap-nav' @click="showChannelEdit=true"></van-icon>
       </span>
       <!-- 弹出层组件 -->
       <van-popup v-model="showMoreAction" style="width: 80%">
@@ -22,12 +22,17 @@
           <!-- <moreAction @dislike="dislikeArticle" @report='reportArticle'></moreAction> -->
           <moreAction @dislike="dislikeArticle('display')" @report="dislikeArticle('report',$event)"></moreAction>
       </van-popup>
+      <!-- 频道编辑组件 -->
+      <van-action-sheet title="频道编辑" v-model="showChannelEdit" :round="false">
+        <channelEdit :Mychannels='channels'></channelEdit>
+      </van-action-sheet>
   </div>
 </template>
 
 <script>
 import articleList from '@/views/home/component/article-list' // 引入文章列表组件
 import moreAction from '@/views/home/component/more-action' // 引入更多操作组件
+import channelEdit from '@/views/home/component/channel-edit'// 引入频道编辑组件
 import { getChannels } from '@/api/channels' // 引入获取频道请求
 import { dislikeArticle, reportArticle } from '@/api/articles' // 引入对文章不喜欢的请求 he 举报文章的请求
 import eventBus from '@/utils/eventbus' // 引入公共实例
@@ -35,14 +40,16 @@ import eventBus from '@/utils/eventbus' // 引入公共实例
 export default {
   components: {
     articleList,
-    moreAction
+    moreAction,
+    channelEdit
   },
   data () {
     return {
       channels: [], // 放置频道数据
       showMoreAction: false, // 是否显示弹层组件,默认不显示
       articleId: null, // 文章id
-      channelIndex: 0 // 当前所在频道的索引值
+      channelIndex: 0, // 当前所在频道的索引值
+      showChannelEdit: false// 是否显示频道编辑组件
     }
   },
   methods: {
@@ -104,6 +111,17 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.van-action-sheet {
+  max-height: 100%;
+  height: 100%;
+  .van-action-sheet__header {
+    background: #3296fa;
+    color: #fff;
+    .van-icon-close {
+      color: #fff;
+    }
+  }
+}
 .van-tabs {
   height: 100%;
   display: flex;
