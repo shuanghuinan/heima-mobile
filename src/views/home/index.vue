@@ -24,7 +24,7 @@
       </van-popup>
       <!-- 频道编辑组件 -->
       <van-action-sheet title="频道编辑" v-model="showChannelEdit" :round="false">
-        <channelEdit :Mychannels='channels'></channelEdit>
+        <channelEdit :Mychannels='channels' :curChannel='channelIndex' @selectChannel='selectChannel'></channelEdit>
       </van-action-sheet>
   </div>
 </template>
@@ -77,7 +77,7 @@ export default {
         // 请求不成功的话,显示错误提示消息
         this.$shnnotify({ message: '操作失败' })
       }
-    }
+    },
     // async dislikeArticle () {
     //   try {
     //     await dislikeArticle({ target: this.articleId })
@@ -103,6 +103,11 @@ export default {
     //     this.$shnnotify({ message: '操作失败' })
     //   }
     // }
+    // 选择频道
+    selectChannel (index) {
+      this.channelIndex = index // 将当前频道索引改为子组件传过来的索引值
+      this.showChannelEdit = false// 关闭弹层
+    }
   },
   created () {
     this.getChannels()
