@@ -36,3 +36,11 @@ export function getSuggestion (params) {
     params
   })
 }
+
+// 搜索文章
+export function searchArticle (params) {
+  return request({
+    url: '/search',
+    params
+  })
+}
