@@ -129,8 +129,9 @@ export default {
     // 添加我的频道
     async addMyChannel (channel) {
       try {
-        await addMyChannel(channel)
-        this.channels.push(channel)
+        // 这里需要 调用api 将频道写入缓存 成功之后 要将 该频道添加到 data数据
+        await addMyChannel(channel)// 传入参数 写入缓存
+        this.channels.push(channel)// 将添加的channel添加到 data中的channels中
       } catch (error) {
         this.$$shnnotify({ message: '添加频道失败' })
       }
