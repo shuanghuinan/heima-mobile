@@ -26,13 +26,19 @@
        <!-- 遮罩层里面有加载圈 -->
       <van-loading type="spinner" color="#1989fa" />
      </van-overlay>
+     <!-- 评论列表 -->
+     <Comment></Comment>
   </div>
 </template>
 
 <script>
 import { getArticleInfo } from '@/api/articles' // 引入文章详情接口
 import { followUser, unFollowUser } from '@/api/user'// 引入关注用户/取消关注用户的接口
+import Comment from './components/comment'
 export default {
+  components: {
+    Comment
+  },
   data () {
     return {
       articleInfo: {}, // 用来存放当前文章信息
@@ -94,6 +100,8 @@ export default {
   height: 100%;
   overflow-y: auto;
   box-sizing: border-box;
+    padding: 0 10px;
+
 }
 .detail {
   padding: 46px 10px 44px;
