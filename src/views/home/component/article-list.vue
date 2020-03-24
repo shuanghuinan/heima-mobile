@@ -6,7 +6,7 @@
       <van-list v-model="loading" :finished="finished" @load="load" finished-text="见底了">
         <van-cell-group>
           <!-- 每条信息 -->
-          <van-cell v-for="item in articles" :key="item.art_id.toString()">
+          <van-cell :to="`/article?artId=${item.art_id.toString()}`" v-for="item in articles" :key="item.art_id.toString()">
             <div class="article_item">
               <!-- 标题 -->
               <h3 class="van-ellipsis">{{item.title}}</h3>
@@ -27,7 +27,7 @@
                 <span>{{item.ch_id}}评论</span>
                 <span>{{item.pubdate | relTime}}</span>
                 <!-- vuex中有token,就显示小叉号,没有token就不显示 -->
-                <span @click="$emit('showAction',item.art_id.toString())" class="close" v-if="$store.state.user.token">
+                <span @click.stop="$emit('showAction',item.art_id.toString())" class="close" v-if="$store.state.user.token">
                   <van-icon name="cross"></van-icon>
                 </span>
               </div>

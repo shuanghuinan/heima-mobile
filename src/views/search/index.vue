@@ -16,7 +16,7 @@
         <van-icon name="delete" @click="clear"></van-icon>
       </div>
       <van-cell-group>
-        <van-cell  @click="toSearchResult(item)" v-for="(item,index) in historyList" :key="index">
+        <van-cell  @click="toResult(item)" v-for="(item,index) in historyList" :key="index">
           <a class="word_btn">{{item}}</a>
           <van-icon @click.stop="delHistory(index)" class="close_btn" slot="right-icon" name="cross" />
         </van-cell>
@@ -54,6 +54,7 @@ export default {
     // q () {
     //   if (!this.timer) {
     //     this.timer = setTimeout(async () => {
+    //       this.timer = null
     //       if (!this.q) {
     //         this.suggestList = []
     //         return
@@ -71,9 +72,9 @@ export default {
       localStorage.setItem(key, JSON.stringify(this.historyList))
     },
     // 点击某条记录时,跳转结果
-    toSearchResult (text) {
-      this.$router.push({ path: '/search/result', query: { q: text } })
-    },
+    // toSearchResult (text) {
+    //   this.$router.push({ path: '/search/result', query: { q: text } })
+    // },
     // 清空历史记录
     async clear () {
       try {
