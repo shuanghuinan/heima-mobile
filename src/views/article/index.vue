@@ -9,7 +9,7 @@
           <p class="name">{{articleInfo.aut_name}}</p>
           <p class="time">{{articleInfo.pubdate | relTime}}</p>
         </div>
-        <van-button round size="small" type="info">{{articleInfo.is_followed ? '已关注' : '+ 关注'}}</van-button>
+        <van-button :loading="followLoading" round size="small" type="info" @click="follow()">{{articleInfo.is_followed ? '已关注' : '+ 关注'}}</van-button>
       </div>
       <div class="content" v-html="articleInfo.content">
         <!-- 文章内容 -->
@@ -20,26 +20,60 @@
         <van-button round size="small" :class="{active:articleInfo.attitude===0}" plain icon="delete">不喜欢</van-button>
       </div>
     </div>
+
+    <!-- 放置一个遮罩层 -->
+     <van-overlay :show="loading">
+       <!-- 遮罩层里面有加载圈 -->
+      <van-loading type="spinner" color="#1989fa" />
+     </van-overlay>
   </div>
 </template>
 
 <script>
 import { getArticleInfo } from '@/api/articles' // 引入文章详情接口
+import { followUser, unFollowUser } from '@/api/user'// 引入关注用户/取消关注用户的接口
 export default {
   data () {
     return {
-      articleInfo: {}// 用来存放当前文章信息
+      articleInfo: {}, // 用来存放当前文章信息
+      followLoading: false, // 是否正在点击关注
+      loading: false// 遮罩层状态
     }
   },
   methods: {
+    // 获取文章信息
     async  getArticleInfo () {
+      this.loading = true// 开启遮罩层
       try {
         const { artId } = this.$route.query // 从当前路由信息对象读取 query参数
         this.articleInfo = await getArticleInfo(artId) // 请求接口取得数据
       } catch (error) {
-        alert(error.message)
+        // alert(error.message)
+        this.$shnnotify({ message: '获取文章失败' })
+      } finally {
+        this.loading = false // 关闭遮罩层
+      }
+    },
+    // 点击按钮的时候, 关注用户 / 取消关注用户
+    async follow () {
+      this.followLoading = true// 开启按钮的加载中状态
+      try {
+        // 如果此时的状态是已关注,就去请求取消关注接口
+        if (this.articleInfo.is_followed) {
+          await unFollowUser(this.articleInfo.aut_id)
+        } else {
+        // 否则表示未关注,就要去请求关注用户接口
+          await followUser(this.articleInfo.aut_id)
+        }
+        // 将状态改为对立状态
+        this.articleInfo.is_followed = !this.is_followed
+      } catch (error) {
+        this.$shnnotify({ message: '操作失败' })
+      } finally {
+        this.followLoading = false// 关闭按钮的加载中状态
       }
     }
+
   },
   created () {
     this.getArticleInfo()
@@ -48,6 +82,14 @@ export default {
 </script>
 
 <style lang='less' scoped>
+.van-overlay{
+  width: 100%;
+  height: 100%;
+  display: flex;
+    justify-content: center;
+  align-items: center;
+  background-color:rgba(0,0,0,0.4)
+}
 .container {
   height: 100%;
   overflow-y: auto;
