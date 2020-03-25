@@ -94,7 +94,7 @@ export default {
   display: flex;
     justify-content: center;
   align-items: center;
-  background-color:rgba(0,0,0,0.4)
+  background-color:none
 }
 .container {
   height: 100%;
