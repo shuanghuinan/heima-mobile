@@ -40,13 +40,14 @@
       <van-cell icon="edit" title="编辑资料" to="/user/profile" is-link />
       <van-cell icon="chat-o" title="小智同学" to="/user/chat" is-link />
       <van-cell icon="setting-o" title="系统设置" is-link />
-      <van-cell icon="warning-o" title="退出登录" to="/login" is-link />
+      <van-cell icon="warning-o" title="退出登录" is-link @click="Logout"/>
     </van-cell-group>
   </div>
 </template>
 
 <script>
 import { getUserInfo } from '@/api/user'// 引入获取用户基本信息的接口
+import { mapMutations } from 'vuex'
 export default {
   data () {
     return {
@@ -54,8 +55,21 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['deleteUser']), // 引入vuex中的删除token令牌方法
     async getUserInfo () {
       this.userInfo = await getUserInfo()
+    },
+    // 退出
+    async Logout () {
+      // 点退出的时候先给个提示信息
+      try {
+        // 点确定的话,要将token令牌删除,并且跳到登录页
+        await this.$dialog.confirm({ title: '提示', message: '您确定要退出吗?' })
+        this.deleteUser()// 删除token
+        this.$router.push('/login')
+      } catch (error) {
+        // 点了取消的话,就什么都不做
+      }
     }
   },
   created () {
