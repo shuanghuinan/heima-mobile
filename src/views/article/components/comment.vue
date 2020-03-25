@@ -32,12 +32,12 @@
     <div class="reply-container van-hairline--top">
       <van-field v-model="value" placeholder="写评论...">
         <van-loading v-if="submiting" slot="button" type="spinner" size="16px"></van-loading>
-        <span class="submit" v-else slot="button">提交</span>
+        <span class="submit" v-else slot="button" @click="submit">提交</span>
       </van-field>
     </div>
 
     <!-- 回复评论 -->
-    <van-action-sheet v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
+    <van-action-sheet @closed="reply.commentId=null" v-model="showReply" :round="false" class="reply_dialog" title="回复评论">
       <van-list v-model="reply.loading" :finished="reply.finished" finished-text="没有更多了">
         <div class="item van-hairline--bottom van-hairline--top" v-for="item in reply.list" :key="item.com_id.toString()">
           <van-image round width="1rem" height="1rem" fit="fill" :src="item.aut_photo" />
@@ -55,7 +55,8 @@
 </template>
 
 <script>
-import { getComments } from '@/api/articles' // 引入获取文章评论的接口
+import { getComments, commentOrreply } from '@/api/articles' // 引入获取文章评论的接口  和 提交评论或回复的接口
+
 export default {
   data () {
     return {
@@ -110,6 +111,50 @@ export default {
       this.reply.loading = true // 主动打开加载状态 因为此时没有 主动检查
       this.reply.finished = false// 将finsish打开
       this.getReplyInfo()// 发请求
+    },
+
+    // 点击提交按钮时, 提交评论或回复
+    // 在关闭回复的弹出面板时,将当前的评论id清除
+    async submit () {
+      // 只有登录用户才可以进行评论或回复
+      if (this.$store.state.user.token) {
+        // 确定是已登录用户后,再来判断输入框是否有内容
+        if (!this.value) return false// 如果没有内容的话,直接返回false
+        // 然后再进行有内容的操作
+        this.submiting = true// 先将提交状态打开
+        try {
+          const res = await commentOrreply({ // 然后再去请求提交评论或回复的接口
+            target: this.reply.commentId ? this.reply.commentId : this.$route.query.artId, // 如果有评论id的话,就代表是要对评论进行回复,如果没有评论id的话,就代表是要对文章进行评论
+            content: this.value,
+            art_id: this.reply.commentId ? this.$route.query.artId : null
+          })
+          this.submiting = false// 请求完之后,将提交状态关闭
+          // 并且将从后台响应回来的数据加到评论列表/回复列表
+          // 如果有评论id,表明现在是在对评论进行回复,而不是对文章进行评论
+          if (this.reply.commentId) {
+            this.reply.list.unshift(res.new_obj)
+            const comment = this.comments.find((item) => { return item.com_id.toString() === this.reply.commentId })// 寻找  文章评论中 ===当前评论id的id
+            comment && comment.reply_count++ // 如果找到就将 回复数量+1
+          } else {
+            // 否则说明是在对文章进行评论
+            this.comments.unshift(res.new_obj)
+          }
+          this.value = ''// 清空输入框
+        } catch (error) {
+          this.$shnnotify({ message: '评论失败' })
+        }
+      } else {
+        // 如果没有登录的话,给个提示信息,并且带着参数回登录页
+        try {
+          await this.$dialog.confirm({ title: '提示', message: '您必须在登陆后才可以进行这个操作' })
+          this.$router.push({
+            path: '/login',
+            query: { redirectUrl: this.$route.fullPath }
+          })
+        } catch (error) {
+          // 点击了取消的话,不做任何操作
+        }
+      }
     }
   },
   created () {
