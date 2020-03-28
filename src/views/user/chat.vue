@@ -1,16 +1,10 @@
 <template>
   <div class="container">
     <van-nav-bar fixed left-arrow @click-left="$router.back()" title="小智同学"></van-nav-bar>
-    <div class="chat-list">
-      <div
-        class="chat-item"
-        v-for="(item,index) in list"
-        :key="index"
-        :class="{left:item.name==='xz',right:item.name!=='xz'}"
-      >
+    <div class="chat-list" ref="myList">
+      <div class="chat-item" v-for="(item,index) in list" :key="index" :class="{left:item.name==='xz',right:item.name!=='xz'}" >
         <van-image v-if="item.name==='xz'" fit="cover" round :src="xzIMG" />
         <div class="chat-pao">{{item.msg}}</div>
-
         <van-image v-if="item.name!=='xz'" fit="cover" round :src="photo" />
       </div>
     </div>
@@ -28,6 +22,11 @@ import xzIMG from '../../assets/u=3162816245,4100265419&fm=11&gp=0.jpg' // 引�
 import io from 'socket.io-client' // 引入socke.io的客户端
 import { mapState } from 'vuex' // 引入vuex中的辅助函数
 export default {
+  watch: {
+    list () {
+      this.scrollBottom()
+    }
+  },
   data () {
     return {
       xzIMG, // 小智的头像
@@ -52,6 +51,16 @@ export default {
       this.list.push(obj) // 将发出的消息加入到消息列表中
       this.loading = false // 关闭提交状态
       this.value = '' // 清空输入框的消息
+    },
+
+    // 滚动条滚动到底部的事件
+    scrollBottom () {
+      // Vue的$nextTick方法，会在上一次数据更新，并且完成页面渲染后执行
+      // 格式 ：Vue.$nextTick(回调)  在这个回调函数中，上一次的数据更新结果已经反映到视图上，视图已经更新了
+      this.$nextTick(() => {
+        // 在回调中获取整个列表DOM 结构，并进行滚动条的设置
+        this.$refs.myList.scrollTop = this.$refs.myList.scrollHeight
+      })
     }
   },
   created () {
