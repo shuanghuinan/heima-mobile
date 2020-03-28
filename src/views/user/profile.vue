@@ -47,6 +47,7 @@
 
 <script>
 import { getUserProfile, uploadPhoto, saveUserInfo } from '@/api/user' // 引入获取用户个人信息的接口   引入修改用户头像的接口   引入保存更改的接口
+import { mapMutations } from 'vuex'// 引入vuex中的mapMutations
 import dayjs from 'dayjs'
 export default {
   data () {
@@ -69,6 +70,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['updateIMG']), // 引入vuex中修改用户头像的方法
     async getUserProfile () {
       this.user = await getUserProfile()
     },
@@ -112,6 +114,7 @@ export default {
       fd.append('photo', this.$refs.photoFile.files[0])// 选择的图片文件 选择图片文件
       const res = await uploadPhoto(fd)
       this.user.photo = res.photo// 把成功上传的头像地址设置给当前data中的数据
+      this.updateIMG({ photo: res.photo }) // 将最新的头像地址设置给 vuex数据
       this.showPhoto = false// 关闭头像弹层组件
     },
 

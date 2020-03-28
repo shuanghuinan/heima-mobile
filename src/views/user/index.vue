@@ -55,9 +55,11 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['deleteUser']), // 引入vuex中的删除token令牌方法
+    ...mapMutations(['deleteUser', 'updateIMG']), // 引入vuex中的删除token令牌方法  和  修改头像的方法
+    // 获取用户个人信息
     async getUserInfo () {
       this.userInfo = await getUserInfo()
+      this.updateIMG({ photo: this.userInfo.photo })// 调用mutation来设置头像
     },
     // 退出
     async Logout () {
