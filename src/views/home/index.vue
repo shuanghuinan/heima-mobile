@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!-- tabs标签页组件 -->
-    <van-tabs v-model="channelIndex">
+    <van-tabs v-model="channelIndex" @change="changeTab">
       <!-- 标签页内的每一项 -->
          <!-- 有多少个tab,就有多少个articlelist组件 -->
          <van-tab :title="item.name" v-for="item in channels" :key="item.id">
@@ -135,6 +135,11 @@ export default {
       } catch (error) {
         this.$$shnnotify({ message: '添加频道失败' })
       }
+    },
+
+    // tab页签的切换事件
+    changeTab () {
+      eventBus.$emit('changeTab', this.channels[this.channelIndex].id)
     }
   },
   created () {

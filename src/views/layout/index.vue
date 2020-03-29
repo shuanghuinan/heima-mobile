@@ -4,7 +4,9 @@
     <van-nav-bar fixed title="黑马头条" right-text="搜索"  @click-right="$router.push('/search')" v-if="$route.path!=='/user'"></van-nav-bar>
     <!-- 二级路由容器 -->
     <div class="my-wrapper" :class="{noTop:$route.path=='/user'}">
+    <keep-alive>
         <router-view></router-view>
+    </keep-alive>
     </div>
     <!-- 标签栏 -->
     <van-tabbar route>

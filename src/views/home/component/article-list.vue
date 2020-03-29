@@ -1,6 +1,6 @@
 <template>
   <!-- 我是每个tab -->
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" ref="myScroll" @scroll="remember">
     <!-- 大表格,外面包一层van-pull-refresh,可用来实现下拉刷新 -->
     <van-pull-refresh @refresh="onRefresh" v-model="refresh" :success-text="successTest">
       <van-list v-model="loading" :finished="finished" @load="load" finished-text="见底了">
@@ -51,7 +51,8 @@ export default {
       refresh: true, // 下载刷新状态 表示是否正在下拉刷新
       successTest: '', // 表示下拉刷新完成后的显示文本
       articles: [], // 用于存放文章文章列表
-      timestamp: null // 定义一个时间戳属性 用来存储 历史时间戳
+      timestamp: null, // 定义一个时间戳属性 用来存储 历史时间戳
+      scrollTop: 0 // 记录滚动的位置
     }
   },
   props: {
@@ -113,6 +114,23 @@ export default {
         this.successTest = '当前已经是最新的了'
       }
       // this.successTest = `更新了${.length}条数据` // 并且设置显示文本
+    },
+
+    // 记录滚动的位置
+    remember (event) {
+      // 记录滚动的位置
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        this.scrollTop = event.target.scrollTop // 记录滚动的位置
+      }, 500)
+    }
+  },
+  // 接下来 ,我们就需要在该组件实例唤醒的时候, 判断一下我们实例中的属性是否已经变化了, 如果变化了,我们需要将当前的div滚动回原来的位置
+  activated () {
+    if (this.$refs.myScroll && this.scrollTop) {
+      //  判断滚动位置是否大于0
+      // 将div滚动回原来的位置
+      this.$refs.myScroll.scrollTop = this.scrollTop // 将记录的位置 滚动到 对应位置
     }
   },
 
@@ -133,6 +151,23 @@ export default {
         if (this.articles.length === 0) {
           this.load()
         }
+      }
+    })
+
+    eventBus.$on('changeTab', (channelId) => {
+      // 为什么这里 没有实现效果 因为 tab页切换事件 执行之后 article-list组件渲染 是异步的 没有办法 立刻得出渲染结果
+      // 如果相等 表示 我要滚动此滚动条
+      // 此时得不到 this.$refs.myScroll
+      // 怎么才能保证  执行 该代码时  已经完成了上一次的渲染呢
+      // this.$nextTick()  因为 vue是异步渲染, 如果想要等到上一次的结果 渲染完成  可以 在 this.$nextTick中处理
+      if (channelId === this.channel_id) {
+        this.$nextTick(() => {
+          // 此时可以保证 之前的上一次的异步渲染已经完成
+          if (this.scrollTop && this.$refs.myScroll) {
+            // 当滚动距离不为0 并且 滚动元素存在的情况下 才去滚动
+            this.$refs.myScroll.scrollTop = this.scrollTop // 滚动到固定的位置
+          }
+        })
       }
     })
   }
